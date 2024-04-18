@@ -1,5 +1,8 @@
-﻿using System;
+using System;
+using System.Globalization;
+using System.IO;
 using System.Net.Http;
+using System.Reflection;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -10,7 +13,7 @@ namespace MyApp
         static async Task Main(string[] args)
         {
             string RequestUri = "https://www.themealdb.com/api/json/v1/1/";
-            Console.WriteLine("Jak chcesz zanajeśc przepis 1-Po nazwie, 2-Po głuwnym składniku, 3-Random");
+            Console.WriteLine("Jak chcesz zanajeśc przepis 1-Po nazwie, 3-Random");
             int Input;
             if (!int.TryParse(Console.ReadLine(), out Input))
             {
@@ -26,9 +29,9 @@ namespace MyApp
             }
             else if (Input == 2)
             {
-                Console.WriteLine("Podaj składnik(po ang):");
-                string a = Console.ReadLine();
-                RequestUri += $"search.php?i={a}";
+       //         Console.WriteLine("podaj kraj(po ang):");
+       //         string a = Console.ReadLine();
+       //         RequestUri += $"filter.php?a={a}";
             }
             else if (Input == 3)
             {
@@ -47,10 +50,22 @@ namespace MyApp
 
             var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             var result = JsonSerializer.Deserialize<MealResponse>(responseBody, options);
-
             if (result != null && result.Meals != null && result.Meals.Length > 0)
             {
+              
+
+           
                 var meal = result.Meals[0];
+                Console.WriteLine("Informacje o daniu:");       
+                var name = meal.GetType().GetProperty($"strMeal").GetValue(meal); 
+                var category = meal.GetType().GetProperty($"strCategory").GetValue(meal);
+                var place = meal.GetType().GetProperty($"strArea").GetValue(meal);
+                var tag = meal.GetType().GetProperty($"strTags").GetValue(meal);
+                Console.WriteLine($"Nazwa: {name}");
+                Console.WriteLine($"Categoria: {category}");
+                Console.WriteLine($"Pochodzenie: {place}");
+                Console.WriteLine($"tag: {tag}");
+                Console.WriteLine("");
                 Console.WriteLine("Składniki:");
                 for (int i = 1; i <= 20; i++)
                 {
@@ -79,6 +94,11 @@ namespace MyApp
 
     public class Meal
     {
+        public string strMeal { get; set; } 
+        public string strCategory { get; set; }
+        public string strArea { get; set; }
+        public string strTags { get; set; } 
+
         public string StrInstructions { get; set; }
         public string StrIngredient1 { get; set; }
         public string StrIngredient2 { get; set; }
